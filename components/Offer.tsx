@@ -1,16 +1,19 @@
 import { Cog } from "lucide-react";
 import CardFooter from "./Footer";
+import type { FooterCopy } from "./Footer";
 
 const CardHeader = ({
   title,
   features,
   price,
   discount,
+  copy,
 }: {
   title: string;
   features: string;
   price: string;
   discount: string;
+  copy: FooterCopy;
 }) => {
   return (
     <div className="p-5 divide-y divide-[#F0E4D2]">
@@ -40,7 +43,7 @@ const CardHeader = ({
           ))}
         </div>
       </div>
-      <CardFooter />
+      <CardFooter copy={copy} />
     </div>
   );
 };
