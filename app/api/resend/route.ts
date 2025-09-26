@@ -2,10 +2,10 @@ import { EmailTemplate } from "@/components/EmailTemplate";
 import { Resend } from "resend";
 import { NextRequest, NextResponse } from "next/server";
 
-const resend = new Resend(process.env.NEXT_PUBLIC_RESEND_API_KEY);
+const resend = new Resend(process.env.NEXT_RESEND_API_KEY);
 const fromEmail = process.env.NEXT_PUBLIC_FROM_EMAIL;
 const siteName = process.env.NEXT_PUBLIC_SITE_NAME;
-const audienceId = process.env.NEXT_PUBLIC_AUDIENCE_ID;
+const audienceId = process.env.NEXT_RESEND_AUDIENCE_ID;
 const siteUrl = process.env.NEXT_PUBLIC_DOMAIN;
 const unsubscribeUrl = `${siteUrl}/unsubscribe`;
 const subject = `You’re on the waitlist for ${siteName}`;

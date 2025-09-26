@@ -1,48 +1,68 @@
-import { Github, Linkedin, X } from "lucide-react";
+import { Mail } from "lucide-react";
 import Link from "next/link";
-const LinkedinLink =
-  process.env.NEXT_PUBLIC_LINKEDIN || "https://www.linkedin.com/";
-const TwitterLink = process.env.NEXT_PUBLIC_TWITTER || "https://www.x.com/";
-const GithubLink = process.env.NEXT_PUBLIC_GITHUB || "https://www.github.com/";
 
-const CardFooter = () => {
+const TwitterLink1 = "https://x.com/mytwillot";
+const TwitterLink2 = "https://x.com/RobinLinee";
+const ContactEmail = "contact@deletetweets.net";
+
+// Custom Twitter/X icon component
+const TwitterIcon = ({ size = 16 }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className="transition-colors"
+  >
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  </svg>
+);
+
+const Footer = () => {
   return (
-    <div className="pt-4 space-y-2">
-      <div className="text-[#B1ACA4] text-[12px]">
-        we care about your data in our{" "}
-        <Link
-          href="/privacy-policy"
-          className="underline transition-all duration-200 hover:text-black/70"
-        >
-          privacy policy
-        </Link>
+    <footer className="w-full border-t border-slate-200 bg-white">
+      <div className="mx-auto max-w-6xl px-6 py-8 sm:px-8 lg:px-12">
+        <div className="flex flex-col items-center space-y-4">
+          {/* Developers & Contact Info */}
+          <div className="flex flex-col items-center space-y-3">
+            <div className="text-sm text-slate-600 text-center">
+              由{" "}
+              <Link
+                href={TwitterLink1}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center space-x-1 text-[#4A90E2] hover:text-[#357ABD] transition-colors"
+              >
+                <TwitterIcon size={14} />
+                <span>@mytwillot</span>
+              </Link>
+              {" "}和{" "}
+              <Link
+                href={TwitterLink2}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center space-x-1 text-[#4A90E2] hover:text-[#357ABD] transition-colors"
+              >
+                <TwitterIcon size={14} />
+                <span>@RobinLinee</span>
+              </Link>
+              {" "}共同开发
+            </div>
+
+            <div className="flex items-center space-x-2 text-slate-600">
+              <Mail size={16} />
+              <a
+                href={`mailto:${ContactEmail}`}
+                className="text-sm transition-colors hover:text-[#4A90E2]"
+              >
+                {ContactEmail}
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
-      {/* Social Media */}
-      <div className="flex items-center gap-2">
-        <Link
-          href={LinkedinLink}
-          target="_blank"
-          className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50 text-gray-600 shadow transition duration-200 ease-linear hover:bg-gray-100 hover:text-gray-500 hover:shadow-none"
-        >
-          <Linkedin size={22} />
-        </Link>
-        <Link
-          href={TwitterLink}
-          target="_blank"
-          className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50 text-gray-600 shadow transition duration-200 ease-linear hover:bg-gray-100 hover:text-gray-500 hover:shadow-none"
-        >
-          <X size={22} />
-        </Link>
-        <Link
-          href={GithubLink}
-          target="_blank"
-          className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50 text-gray-600 shadow transition duration-200 ease-linear hover:bg-gray-100 hover:text-gray-500 hover:shadow-none"
-        >
-          <Github size={22} />
-        </Link>
-      </div>
-    </div>
+    </footer>
   );
 };
 
-export default CardFooter;
+export default Footer;

@@ -1,137 +1,140 @@
 "use client";
+
 import React, { useTransition } from "react";
 import toast from "react-hot-toast";
+import { LoaderCircle, Mail, User } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Hourglass, LoaderCircle, Mail, User } from "lucide-react";
-import { useState } from "react";
+import { cn } from "@/lib/utils";
 
-const EmailForm = ({ date, title }: { date: string; title: string }) => {
-  const [isPending, startTransaction] = useTransition();
+type EmailFormCopy = {
+  nameLabel: string;
+  namePlaceholder: string;
+  emailLabel: string;
+  emailPlaceholder: string;
+  submitLabel: string;
+  successMessage: string;
+  errorMessage: string;
+  finePrint?: string;
+};
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+type EmailFormProps = {
+  copy: EmailFormCopy;
+  includeName?: boolean;
+  className?: string;
+};
 
-  const handleClick = () => {
-    setIsLoading(true);
-    // Simulate an async operation
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000); // Reset after 1 second
-  };
+const EmailForm = ({ copy, includeName = true, className }: EmailFormProps) => {
+  const [isPending, startTransition] = useTransition();
 
-  function getDaysLeft(): number {
-    const endDate = new Date(date); // Set your target date here
-    const today = new Date();
-    const diffTime = endDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return Math.max(0, diffDays);
-  }
-
-  const handleSubmit = async (event: React.SyntheticEvent) => {
+  const handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const target = event.target as HTMLFormElement;
-    const form = new FormData(target);
-    const email = form.get("email");
-    const fullName = form.get("name") as string;
 
-    if (!email || !fullName) {
-      return null;
+    const formElement = event.currentTarget;
+    const formData = new FormData(formElement);
+
+    const email = formData.get("email")?.toString().trim();
+    const fullName = formData.get("name")?.toString().trim();
+
+    if (!email) {
+      toast.error(copy.errorMessage);
+      return;
     }
 
-    // Split full name into first and last name
-    const [firstName, ...lastNameParts] = fullName.trim().split(" ");
-    const lastName = lastNameParts.join(" ") || ""; // Join remaining parts or empty string
+    const [firstName = "", ...lastNameParts] =
+      includeName && fullName ? fullName.split(/\	|\s+/).filter(Boolean) : [""];
+    const lastName = lastNameParts.join(" ");
 
-    startTransaction(async () => {
+    startTransition(async () => {
       try {
-        const res = await fetch("/api/resend", {
+        const response = await fetch("/api/resend", {
           method: "POST",
-          body: JSON.stringify({ email, firstName, lastName }),
           headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, firstName, lastName }),
         });
 
-        if (res.ok) {
-          target.reset();
-          toast.success("Thank you for subscribing 🎉");
-        } else {
-          console.error("Error:", res.status, res.statusText);
-          toast.error("Something went wrong");
+        if (!response.ok) {
+          throw new Error("Request failed");
         }
+
+        formElement.reset();
+        toast.success(copy.successMessage);
       } catch (error) {
-        console.error("Fetch error:", error);
+        console.error("Resend request failed", error);
+        toast.error(copy.errorMessage);
       }
     });
   };
+
   return (
-    <div className="p-5 space-y-8 flex flex-col justify-center">
-      <div className="space-y-3">
-        {/* <div className="text-orange-500 font-medium">Limited Time Offer</div> */}
-        <span className="text-green-600 bg-green-100 px-2 py-1 rounded text-sm items-center flex gap-1 w-fit">
-          <Hourglass size={14} strokeWidth={2} aria-hidden="true" />
-          {getDaysLeft()} days left
-        </span>
-        <h1 className="md:text-4xl text-3xl leading-tight font-semibold">
-          {title}
-        </h1>
+    <form onSubmit={handleSubmit} className={cn("w-full space-y-4", className)}>
+      <div className={cn("grid gap-4", includeName ? "md:grid-cols-2" : "")}>
+        {includeName && (
+          <div className="space-y-2">
+            <Label htmlFor="name">{copy.nameLabel}</Label>
+            <div className="relative">
+              <Input
+                id="name"
+                name="name"
+                type="text"
+                placeholder={copy.namePlaceholder}
+                autoComplete="name"
+                required={includeName}
+                className="h-12 border-slate-200 bg-white/80 pr-10 text-base shadow-none focus-visible:ring-2 focus-visible:ring-[#4A90E2]/30"
+              />
+              <span className="pointer-events-none absolute inset-y-0 end-3 flex items-center text-slate-400">
+                <User size={18} strokeWidth={2} aria-hidden="true" />
+              </span>
+            </div>
+          </div>
+        )}
+
+        <div className="space-y-2">
+          <Label htmlFor="email">{copy.emailLabel}</Label>
+          <div className="relative">
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              placeholder={copy.emailPlaceholder}
+              autoComplete="email"
+              required
+              className="h-12 border-slate-200 bg-white/80 pr-10 text-base shadow-none focus-visible:ring-2 focus-visible:ring-[#4A90E2]/30"
+            />
+            <span className="pointer-events-none absolute inset-y-0 end-3 flex items-center text-slate-400">
+              <Mail size={18} strokeWidth={2} aria-hidden="true" />
+            </span>
+          </div>
+        </div>
       </div>
 
-      <form onSubmit={(e) => handleSubmit(e)} className="space-y-5">
-        <div>
-          <Label htmlFor="input-10">Full Name</Label>
-          <div className="relative">
-            <Input
-              type="text"
-              name="name"
-              id="name"
-              required
-              placeholder="Full name..."
-            />
-            <div className="pointer-events-none absolute inset-y-0 end-0 flex items-center justify-center pe-3 text-muted-foreground/80 peer-disabled:opacity-50">
-              <User size={16} strokeWidth={2} aria-hidden="true" />
-            </div>
-          </div>
-        </div>
-        <div>
-          <Label htmlFor="input-10">Email address</Label>
-          <div className="relative">
-            <Input
-              type="email"
-              name="email"
-              id="email"
-              required
-              placeholder="Email Address..."
-            />
-            <div className="pointer-events-none absolute inset-y-0 end-0 flex items-center justify-center pe-3 text-muted-foreground/80 peer-disabled:opacity-50">
-              <Mail size={16} strokeWidth={2} aria-hidden="true" />
-            </div>
-          </div>
-        </div>
-
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
         <Button
-          onClick={handleClick}
-          disabled={isPending}
-          data-loading={isPending}
           type="submit"
-          className="group relative disabled:opacity-100 w-full"
+          disabled={isPending}
+          className="relative inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[#4A90E2] px-6 text-base font-medium text-white transition hover:bg-[#407fc7] md:w-auto"
         >
-          <span className="group-data-[loading=true]:text-transparent">
-            Join the waitlist
-          </span>
           {isPending && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <LoaderCircle
-                className="animate-spin"
-                size={16}
-                strokeWidth={2}
-                aria-hidden="true"
-              />
-            </div>
+            <LoaderCircle
+              size={18}
+              strokeWidth={2}
+              className="animate-spin text-white"
+              aria-hidden="true"
+            />
           )}
+          <span>{copy.submitLabel}</span>
         </Button>
-      </form>
-    </div>
+        {copy.finePrint && (
+          <p className="text-sm text-slate-500 md:text-left md:max-w-md">
+            {copy.finePrint}
+          </p>
+        )}
+      </div>
+    </form>
   );
 };
 
+export type { EmailFormCopy };
 export default EmailForm;
