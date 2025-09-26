@@ -110,11 +110,11 @@ const EmailForm = ({ copy, includeName = true, className }: EmailFormProps) => {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
+      <div className="flex flex-col gap-3 items-center">
         <Button
           type="submit"
           disabled={isPending}
-          className="relative inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[#4A90E2] px-6 text-base font-medium text-white transition hover:bg-[#407fc7] md:w-auto"
+          className="relative inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[#4A90E2] px-8 text-base font-medium text-white transition hover:bg-[#407fc7] shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 max-w-xs"
         >
           {isPending && (
             <LoaderCircle
@@ -127,7 +127,7 @@ const EmailForm = ({ copy, includeName = true, className }: EmailFormProps) => {
           <span>{copy.submitLabel}</span>
         </Button>
         {copy.finePrint && (
-          <p className="text-sm text-slate-500 md:text-left md:max-w-md">
+          <p className="text-sm text-slate-500 text-center max-w-md">
             {copy.finePrint}
           </p>
         )}

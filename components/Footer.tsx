@@ -3,7 +3,13 @@ import Link from "next/link";
 
 const TwitterLink1 = "https://x.com/mytwillot";
 const TwitterLink2 = "https://x.com/RobinLinee";
-const ContactEmail = "contact@deletetweets.net";
+const ContactEmail = "help@deletetweets.net";
+
+export type FooterCopy = {
+  developedBy: string;
+  and: string;
+  jointDevelopment: string;
+};
 
 // Custom Twitter/X icon component
 const TwitterIcon = ({ size = 16 }) => (
@@ -18,7 +24,11 @@ const TwitterIcon = ({ size = 16 }) => (
   </svg>
 );
 
-const Footer = () => {
+type FooterProps = {
+  copy: FooterCopy;
+};
+
+const Footer = ({ copy }: FooterProps) => {
   return (
     <footer className="w-full border-t border-slate-200 bg-white">
       <div className="mx-auto max-w-6xl px-6 py-8 sm:px-8 lg:px-12">
@@ -26,7 +36,7 @@ const Footer = () => {
           {/* Developers & Contact Info */}
           <div className="flex flex-col items-center space-y-3">
             <div className="text-sm text-slate-600 text-center">
-              由{" "}
+              {copy.developedBy}{" "}
               <Link
                 href={TwitterLink1}
                 target="_blank"
@@ -36,7 +46,7 @@ const Footer = () => {
                 <TwitterIcon size={14} />
                 <span>@mytwillot</span>
               </Link>
-              {" "}和{" "}
+              {" "}{copy.and}{" "}
               <Link
                 href={TwitterLink2}
                 target="_blank"
@@ -46,7 +56,7 @@ const Footer = () => {
                 <TwitterIcon size={14} />
                 <span>@RobinLinee</span>
               </Link>
-              {" "}共同开发
+              {" "}{copy.jointDevelopment}
             </div>
 
             <div className="flex items-center space-x-2 text-slate-600">

@@ -1,11 +1,8 @@
-'use client';
+import { headers } from "next/headers";
 
-import { useState } from "react";
-
-import EmailForm from "@/components/EmailForm";
+import HomePage from "@/components/HomePage";
 import type { EmailFormCopy } from "@/components/EmailForm";
-import Footer from "@/components/Footer";
-import { cn } from "@/lib/utils";
+import type { FooterCopy } from "@/components/Footer";
 
 const siteLogo =
   process.env.NEXT_PUBLIC_LOGO ??
@@ -46,6 +43,7 @@ type Translation = {
     steps: { title: string; description: string }[];
     footnote: string;
   };
+  footer: FooterCopy;
 };
 
 const translations: Record<"en" | "zh", Translation> = {
@@ -101,7 +99,7 @@ const translations: Record<"en" | "zh", Translation> = {
         "Thanks for joining the waitlist! We’ll be in touch with early updates soon.",
       errorMessage: "Something went wrong. Please try again.",
       finePrint:
-        "We use Resend to securely manage waitlist updates. No spam, you can unsubscribe anytime, and early spots include a free month of Premium.",
+        "Early spots include a free month of Premium.",
     },
     features: {
       title: "What you unlock on day one",
@@ -169,6 +167,11 @@ const translations: Record<"en" | "zh", Translation> = {
       footnote:
         "Step away at any time. When you return, your progress and pending actions resume exactly where you left off.",
     },
+    footer: {
+      developedBy: "Developed by",
+      and: "and",
+      jointDevelopment: "jointly",
+    },
   },
   zh: {
     languageName: "中文",
@@ -220,7 +223,7 @@ const translations: Record<"en" | "zh", Translation> = {
       successMessage: "感谢加入候补名单，我们会第一时间发送最新进展。",
       errorMessage: "提交失败，请稍后再试。",
       finePrint:
-        "我们通过 Resend 安全管理候补名单，仅在有重要更新时联系，且前 100 名还将免费体验 1 个月 Premium，可随时一键退订。",
+        "前 100 名还将免费体验 1 个月 Premium。",
     },
     features: {
       title: "上线首日即可使用的关键能力",
@@ -288,162 +291,55 @@ const translations: Record<"en" | "zh", Translation> = {
       footnote:
         "即使中途退出或网络中断，重新登录后也会无缝恢复到当前进度。",
     },
+    footer: {
+      developedBy: "由",
+      and: "和",
+      jointDevelopment: "共同开发",
+    },
   },
 };
 
 type Locale = keyof typeof translations;
 
+// 服务端语言检测函数
+function detectServerLanguage(): Locale {
+  const headersList = headers();
+  const acceptLanguage = headersList.get('accept-language') || '';
+
+  // 解析 Accept-Language 头部
+  const languages = acceptLanguage
+    .split(',')
+    .map(lang => lang.trim().split(';')[0])
+    .map(lang => lang.toLowerCase());
+
+  // 检查是否包含英文
+  const hasEnglish = languages.some(lang => lang.startsWith('en'));
+
+  return hasEnglish ? 'en' : 'zh';
+}
+
 export default function Home() {
-  const [locale, setLocale] = useState<Locale>("zh");
-  const t = translations[locale];
+  const initialLocale = detectServerLanguage();
+
+  // 为语言切换器准备的基础翻译
+  const switcherTranslations = {
+    en: {
+      languageName: translations.en.languageName,
+      languageCode: translations.en.languageCode,
+      brandTagline: translations.en.brandTagline
+    },
+    zh: {
+      languageName: translations.zh.languageName,
+      languageCode: translations.zh.languageCode,
+      brandTagline: translations.zh.brandTagline
+    },
+  };
 
   return (
-    <div className="w-full bg-[#F8F9FA] text-slate-700">
-      <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-20 px-6 py-12 sm:px-8 lg:px-12">
-        <header className="flex flex-wrap items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={siteLogo}
-              alt={`${siteName} logo`}
-              className="h-10 w-auto"
-            />
-            <div className="text-sm uppercase tracking-[0.32em] text-[#4A90E2]">
-              {t.brandTagline}
-            </div>
-          </div>
-          <div className="flex items-center gap-2 rounded-full border border-[#4A90E2]/20 bg-white/50 p-1 shadow-sm">
-            {(Object.keys(translations) as Locale[]).map((code) => (
-              <button
-                key={code}
-                type="button"
-                onClick={() => setLocale(code)}
-                aria-pressed={locale === code}
-                className={cn(
-                  "rounded-full px-4 py-1.5 text-sm font-medium transition",
-                  locale === code
-                    ? "bg-[#4A90E2] text-white shadow"
-                    : "text-slate-500 hover:text-slate-800"
-                )}
-              >
-                {translations[code].languageName}
-              </button>
-            ))}
-          </div>
-        </header>
-
-        <main className="flex flex-col gap-24 pb-12">
-          <section className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
-            <div className="space-y-8">
-              <span className="inline-flex w-fit items-center gap-2 rounded-full bg-[#4A90E2]/10 px-4 py-1.5 text-sm font-medium text-[#1F2937]">
-                <span className="h-2 w-2 rounded-full bg-[#50E3C2]" aria-hidden="true" />
-                {t.hero.kicker}
-              </span>
-              <h1 className="text-4xl font-semibold leading-tight text-slate-900 sm:text-5xl">
-                {t.hero.title.map((segment, index) => (
-                  <span
-                    key={`${segment.text}-${index}`}
-                    className={segment.accent ? "text-[#4A90E2]" : undefined}
-                  >
-                    {segment.text}
-                  </span>
-                ))}
-              </h1>
-              <p className="max-w-2xl text-lg text-slate-600">{t.hero.subtitle}</p>
-              <p className="max-w-2xl text-base text-slate-500">{t.hero.supporting}</p>
-
-              <ul className="grid gap-6 sm:grid-cols-2">
-                {t.hero.bullets.map((item) => (
-                  <li
-                    key={item.title}
-                    className="space-y-2 border-l-4 border-[#50E3C2]/70 pl-4"
-                  >
-                    <h3 className="text-lg font-semibold text-slate-900">
-                      {item.title}
-                    </h3>
-                    <p className="text-sm text-slate-600">{item.description}</p>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="space-y-8">
-              <div className="space-y-3">
-                <h2 className="text-2xl font-semibold text-slate-900">
-                  {t.hero.ctaHeading}
-                </h2>
-                <p className="text-base text-slate-600">{t.hero.ctaParagraph}</p>
-              </div>
-              <div className="space-y-2 border-l-4 border-[#4A90E2] bg-[#4A90E2]/5 px-4 py-3 text-slate-700">
-                <span className="text-xs font-semibold uppercase tracking-[0.24em] text-[#4A90E2]">
-                  {t.hero.limitedOffer.badge}
-                </span>
-                <p className="text-lg font-semibold text-slate-900">
-                  {t.hero.limitedOffer.headline}
-                </p>
-                <p className="text-sm text-slate-600">
-                  {t.hero.limitedOffer.description}
-                </p>
-              </div>
-              <EmailForm
-                includeName={false}
-                copy={t.form}
-                className="max-w-xl"
-              />
-            </div>
-          </section>
-
-          <section className="space-y-8 border-t border-slate-200 pt-12">
-            <div className="space-y-4">
-              <h2 className="text-3xl font-semibold text-slate-900">
-                {t.features.title}
-              </h2>
-              <p className="max-w-3xl text-base text-slate-600">
-                {t.features.description}
-              </p>
-            </div>
-            <div className="grid gap-8 md:grid-cols-2">
-              {t.features.items.map((item) => (
-                <div key={item.title} className="space-y-2 border-l-2 border-[#4A90E2]/40 pl-5">
-                  <h3 className="text-xl font-semibold text-slate-900">
-                    {item.title}
-                  </h3>
-                  <p className="text-sm text-slate-600">{item.description}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="space-y-8 border-t border-slate-200 pt-12">
-            <div className="space-y-4">
-              <h2 className="text-3xl font-semibold text-slate-900">
-                {t.journey.title}
-              </h2>
-              <p className="max-w-3xl text-base text-slate-600">
-                {t.journey.description}
-              </p>
-            </div>
-            <ol className="grid gap-6 md:grid-cols-2">
-              {t.journey.steps.map((step, index) => (
-                <li key={step.title} className="flex gap-4">
-                  <span className="mt-1 inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#4A90E2]/15 text-sm font-semibold text-[#4A90E2]">
-                    {(index + 1).toString().padStart(2, "0")}
-                  </span>
-                  <div className="space-y-1">
-                    <h3 className="text-lg font-semibold text-slate-900">
-                      {step.title}
-                    </h3>
-                    <p className="text-sm text-slate-600">{step.description}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-            <p className="text-sm text-slate-500">{t.journey.footnote}</p>
-          </section>
-        </main>
-
-        <Footer />
-      </div>
-    </div>
+    <HomePage
+      initialLocale={initialLocale}
+      translations={translations}
+      switcherTranslations={switcherTranslations}
+    />
   );
 }
